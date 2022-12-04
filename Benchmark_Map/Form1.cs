@@ -137,17 +137,16 @@ namespace Benchmark_Map
                 button2.Visible = true;
 
                 dataGridView1.Rows.Add(namePC, test1Time, test2Time, test3Time, Math.Pow(test1Time * test2Time * test3Time, 1.0 / 3));
-                dataGridView2.Rows.Add(
-                    namePC,
-                    test1Time / Convert.ToDouble(dataGridView1[1, 0].Value),
-                    test2Time / Convert.ToDouble(dataGridView1[2, 0].Value),
-                    test3Time / Convert.ToDouble(dataGridView1[3, 0].Value),
-                    Math.Pow((test1Time / Convert.ToDouble(dataGridView1[1, 0].Value)) *
-                            (test2Time / Convert.ToDouble(dataGridView1[2, 0].Value)) *
-                            (test3Time / Convert.ToDouble(dataGridView1[3, 0].Value)), 1.0 / 3)
-                    );
 
 
+                double maxValueTest = 0;
+                for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                {
+                    if (maxValueTest < Convert.ToDouble(dataGridView1[4, i].Value))
+                        maxValueTest = Convert.ToDouble(dataGridView1[4, i].Value);
+                }
+
+                LoadASecondTable();
             }
             else MessageBox.Show("Введите имя тестируемого ПК", "", MessageBoxButtons.OK);
         }
@@ -197,6 +196,7 @@ namespace Benchmark_Map
             string[] lines = File.ReadAllLines("sample.txt");
             string[] values;
 
+
             // Этот цикл for повторяется через каждую строку в таблице
             for (int i = 0; i < lines.Length; i++)
             {
@@ -210,14 +210,35 @@ namespace Benchmark_Map
                 dataGridView1.Rows.Add(row);
             }
 
+            LoadASecondTable();
+        }
+
+        private void LoadASecondTable()
+        {
+            dataGridView2.Rows.Clear(); // Очищаем и сбрасываем таблицу
+            dataGridView2.Refresh();
+
+            int maxRow = 0;
+            double valueInMaxRow = 0;
+            
+            for (int i = 0; i < dataGridView1.RowCount; i++)
+            {
+                if (valueInMaxRow < Convert.ToDouble(dataGridView1[4, i].Value))
+                {
+                    valueInMaxRow = Convert.ToDouble(dataGridView1[4, i].Value);
+                    maxRow = i;
+                }
+            }
+
             for (int i = 0; i < dataGridView1.RowCount; i++) // Запись во вторую таблицу осуществляется через расчеты. Т.к нужно всего лишь посчитать коэффициенты 
             {
+
                 dataGridView2.Rows.Add(
                     dataGridView1[0, i].Value,
-                    Convert.ToDouble(dataGridView1[1, i].Value) / Convert.ToDouble(dataGridView1[1, 0].Value),
-                    Convert.ToDouble(dataGridView1[2, i].Value) / Convert.ToDouble(dataGridView1[2, 0].Value),
-                    Convert.ToDouble(dataGridView1[3, i].Value) / Convert.ToDouble(dataGridView1[3, 0].Value),
-                    Convert.ToDouble(dataGridView1[4, i].Value) / Convert.ToDouble(dataGridView1[4, 0].Value)
+                    Convert.ToDouble(dataGridView1[1, i].Value) / Convert.ToDouble(dataGridView1[1, maxRow].Value),
+                    Convert.ToDouble(dataGridView1[2, i].Value) / Convert.ToDouble(dataGridView1[2, maxRow].Value),
+                    Convert.ToDouble(dataGridView1[3, i].Value) / Convert.ToDouble(dataGridView1[3, maxRow].Value),
+                    Convert.ToDouble(dataGridView1[4, i].Value) / Convert.ToDouble(dataGridView1[4, maxRow].Value)
                     );
             }
         }
